@@ -10,9 +10,6 @@
         return{
             auth
         }
-    },
-    mounted(){
-        console.log(localStorage)
     }
     }
 </script>
