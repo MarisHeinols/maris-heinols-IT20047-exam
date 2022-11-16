@@ -1,30 +1,29 @@
-<template>
-    <Header v-if="auth.is_authenticated == true"></Header>
-    <div id="section-body">
-        <NavigationComponentVue v-if="auth.is_authenticated == true"/>
-        <router-view class="section-router"></router-view>
-    </div>
-    <div id="section-player" v-if="auth.is_authenticated == true">
-        <AudioPlayer />
-    </div>
-</template>
 <script>
     import NavigationComponentVue from './components/NavigationComponent.vue';
     import { auth } from './stores/auth';
     export default {
-    name: 'App',
+        name: 'App',
+        components: {
+            NavigationComponentVue,
+    },
     data() {
         return{
-        auth
+            auth
         }
     },
-    components: {
-        NavigationComponentVue,
-    },
-    computed:{
-        local_is_auth(){
-            return localStorage.getItem("is_authenticated")
-        }
+    mounted(){
+        console.log(localStorage)
     }
     }
 </script>
+<template>
+    <Header v-if="auth.is_authenticated"></Header>
+    <div id="section-body">
+        <NavigationComponentVue v-if="auth.is_authenticated"/>
+        <router-view class="section-router"></router-view>
+    </div>
+    <div id="section-player" v-if="auth.is_authenticated">
+        <AudioPlayer />
+    </div>
+</template>
+

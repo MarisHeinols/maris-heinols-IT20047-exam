@@ -2,14 +2,21 @@
     <nav id="nav-main" class="wrapper-navigation">
         <ol>
             <li>
-                <router-link to="/">SONGS</router-link>
-            </li>
-            <li>
-                <router-link to="/albums">ALBUMS</router-link>
-            </li>
-            <li>
-                <router-link to="/about">ABOUT</router-link>
+                <router-link v-for="p in paths" :to="p.path">{{ p.name }}</router-link>
             </li>
         </ol>
     </nav>
 </template>
+<script>
+export default {
+    data() {
+        return {
+            paths: [
+                { path: '/', name: 'SONGS' },
+                { path: '/albums', name: 'ALBUMS' },
+                { path: '/about', name: 'ABOUT' }
+            ]
+        }
+    }
+}
+</script>

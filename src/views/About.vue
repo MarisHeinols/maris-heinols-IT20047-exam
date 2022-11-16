@@ -5,7 +5,8 @@
             <div class="settings">
                 <button id="btn-edit" @click="changeEditStatus()" 
                     v-bind:class="{active: formIsActive}" >{{buttonText}}</button>
-                <button id="btn-save" v-if="formIsActive" @click="editUserData()">Save Form</button>
+                <button id="btn-save" v-if="formIsActive" 
+                    @click="editUserData()">Save Form</button>
             </div>
         </div>
         <form>
@@ -35,54 +36,53 @@
                         </div>
                     </li>
                 </ul>
-                <div id="txt-empty" class="empty" v-if="auth.getFavoriteSongs().length == 0">NO SONGS FOUND</div>
+                <div id="txt-empty" class="empty" 
+                    v-if="auth.getFavoriteSongs().length == 0">NO SONGS FOUND</div>
             </div>
         </form>
     </div>
 </template>
 <script>
-import { player } from '../stores/player'
-import { auth } from '../stores/auth'
+    import { auth } from '../stores/auth'
 
-export default {
-    name: 'About',
-    data() {
-        return{
-            player,
-            auth,
-            formIsActive:false,
-            buttonText:"Edit Form",
-            name:"",
-            surname:"",
-            studentCode:"",
-            favoriteSongs:""
+    export default {
+        name: 'About',
+        data() {
+            return{
+                auth,
+                formIsActive:false,
+                buttonText:"Edit Form",
+                name:"",
+                surname:"",
+                studentCode:"",
+                favoriteSongs:""
+            }
+        },
+        methods:{
+            changeEditStatus(){
+                this.formIsActive = !this.formIsActive
+                {this.formIsActive?this.buttonText = "Cancel": this.buttonText = "Edit Form"}
+            },
+            editUserData(){
+                if(this.name ==""){
+                    this.name = auth.user.name
+                }
+                if(this.surname ==""){
+                    this.surname = auth.user.surname
+                }
+                if(this.studentCode ==""){
+                    this.studentCode = auth.user.code
+                }
+                auth.setUserData(this.name,this.surname,this.studentCode)
+                this.formIsActive=false
+            },
+            getArtists(artists){
+                let artistsCombo = ""
+                artists.forEach(artist => {
+                    artistsCombo += artist.name + " "
+                });
+                return artistsCombo
+            },
         }
-    },
-    methods:{
-        changeEditStatus(){
-            this.formIsActive = !this.formIsActive
-            {this.formIsActive?this.buttonText = "Cancel": this.buttonText = "Edit Form"}
-        },
-        editUserData(){
-            if(this.name ==""){
-                this.name = auth.user.name
-            }
-            if(this.surname ==""){
-                this.surname = auth.user.surname
-            }
-            if(this.studentCode ==""){
-                this.studentCode = auth.user.code
-            }
-            auth.setUserData(this.name,this.surname,this.studentCode)
-            this.formIsActive=false
-        },
-        getArtists(artists){
-            let artistsCombo = ""
-            artists.forEach(artist => {
-                artistsCombo += artist.name + " "
-            });
-            return artistsCombo
-        },
-    }
     }
 </script>

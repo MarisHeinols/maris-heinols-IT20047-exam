@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import  router from '@/router/index.js'
+import router from '@/router/index.js'
 
 export const auth = reactive({
 
@@ -7,7 +7,7 @@ export const auth = reactive({
         name:"Maris",
         surname:"Heinols",
         code:"IT20047",
-        favorite_songs:localStorage.favorite_songs == null ? [] : localStorage.favorite_songs
+        favorite_songs:localStorage.favorite_songs == null ? [] : JSON.parse(localStorage.favorite_songs)
     },
     credentails: {
         email:"maris.heinols@va.lv",

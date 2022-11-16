@@ -5,8 +5,10 @@
                 <img src="@/assets/logo.svg" />
                 <div>KRAKEN.FM</div>
             </div>
-            <input id="input-email" placeholder="E-mail" v-model="credentials.userName"/>
-            <input id="input-password" placeholder="Password" v-model="credentials.password"/>
+            <input id="input-email" placeholder="E-mail" 
+                v-model="credentials.userName"/>
+            <input id="input-password" placeholder="Password" 
+                v-model="credentials.password"/>
             <button id="btn-submit" :disabled="!credentials.userName || credentials.password.length<6"
             @click="login()">LOGIN</button>
         </form>
