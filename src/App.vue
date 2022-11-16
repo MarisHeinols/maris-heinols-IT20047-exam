@@ -20,6 +20,11 @@
     },
     components: {
         NavigationComponentVue,
+    },
+    computed:{
+        local_is_auth(){
+            return localStorage.getItem("is_authenticated")
+        }
     }
     }
 </script>

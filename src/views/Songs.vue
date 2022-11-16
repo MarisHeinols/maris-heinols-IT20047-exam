@@ -3,7 +3,7 @@
         <div class="wrapper-header">
             <h1>SONGS</h1>
             <div class="wrapper-search">
-                <input id="input-search" placeholder="Search by title..." v-model="searchInput" />
+                <input id="input-search" placeholder="Search by title..." v-model="searchInput" v-on:change="filterBySearch()" />
             </div>
             <div class="wrapper-settings">
                 <button id="btn-show-favorites" v-bind:class="{ active: show_favorites }" @click="changeFavoritesState()">Show Favorites</button>
@@ -13,21 +13,21 @@
             <table cellspacing="0" cellpadding="0">
                 <tr ref="header">
                     <th id="th-id" >#</th>
-                    <th id="th-title" @click="changeSortByName()" v-bind:class="{ active: sortByName }">
+                    <th id="th-title" @click="sortByName()" v-bind:class="{ active: isSortedByName }">
                         Title
-                        <IconCaretUp  v-if="sortByName"/>
+                        <IconCaretUp  v-if="isSortedByName" style="stroke: red" v-bind:class="{'flip-vertical':isReversed}"/>
                     </th>
                     <th id="th-artist">Artist</th>
                     <th id="th-album">Album</th>
-                    <th id="th-duration">
+                    <th id="th-duration" @click="sortByDuration()" v-bind:class="{ active: isSortedByDur }">
                         Duration
-                        <IconCaretUp />
+                        <IconCaretUp v-if="isSortedByDur" style="stroke: red" v-bind:class="{'flip-vertical':isReversed}"/>
                     </th>
                 </tr>
                 
-                <tr class="song" v-for="(value, index) in song_array" v-on:dblclick="selectSong(value)" v-bind:class="{ active: song_playing_now==value.id?true:false }"> 
+                <tr class="song" v-for="(value, index) in player.playlist" v-on:dblclick="selectSong(value)" v-bind:class="{ active: player.getNowPlayingSongId()==value.id?true:false }"> 
                     <td id="td-index">
-                        <IconPlay v-if="player.getNowPlayingSongId == value.id"/>
+                        <IconPlay v-if="player.getNowPlayingSongId() == value.id"/>
                         <span id="txt-index">{{index+1}}</span>
                     </td>
                     <td id="td-title">
@@ -37,7 +37,7 @@
                     <td id="td-artist" >{{getArtists(value.artists)}}</td>
                     <td id="td-album">{{value.album.name}}</td>
                     <td id="td-duration">
-                        {{value.duration_ms}}
+                        {{formatedTime(value.duration_ms)}}
                         <IconHeart @click="addSongToFavorites(value)" v-bind:class="{active: auth.user.favorite_songs.some(el => el.id === value.id)}"/>
                     </td>
                 </tr>
@@ -54,7 +54,6 @@ import IconPlay from '../components/icons/IconPlay.vue'
 import IconHeart from '../components/icons/IconHeart.vue'
 
 player.setPlaylist(songs)
-
     export default {
     name: 'Songs',
     data() {
@@ -62,14 +61,11 @@ player.setPlaylist(songs)
             player,
             auth,
             searchInput:"",
-            show_favorites :false,
-            sortByName:false,
-            click:0,
-            sortKey: 'name',
+            show_favorites :localStorage.show_favorites ?? false,
+            isSortedByName:false,
+            isSortedByDur:false,
+            clicks:0,
             isReversed:false,
-            song_array: songs,
-            song_array_no_sort: songs,
-            song_playing_now: ""
         }
     },
     components: {
@@ -83,13 +79,11 @@ player.setPlaylist(songs)
         },
         changeFavoritesState(){
             this.show_favorites = !this.show_favorites
+            localStorage.show_favorites=this.show_favorites
             if(this.show_favorites){
-                this.song_array = auth.user.favorite_songs
-                player.playlist = auth.user.favorite_songs
+                player.setPlaylist(auth.user.favorite_songs)
             }else{
-                this.song_array = songs
-                
-                 = songs
+                player.setPlaylist(songs)
             }
         },
         getArtists(artists){
@@ -98,6 +92,12 @@ player.setPlaylist(songs)
                 artistsCombo += artist.name + " "
             });
             return artistsCombo
+        },
+        formatedTime(millis) {
+            var millis = parseInt(JSON.stringify(millis))
+            var minutes = Math.floor(millis / 60000);
+            var seconds = ((millis % 60000) / 1000).toFixed(0);
+            return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
         },
         selectSong(song){
             player.setNowPlaying(song)
@@ -109,20 +109,46 @@ player.setPlaylist(songs)
                 auth.user.favorite_songs.push(song)
             }
         },
-        changeSortByName(){
-            this.click ++
-            {this.click==2?this.reversed = true:this.reversed=false}
-            this.sortByName = true
-            this.song_array.sort((a,b) => {
+        filterBySearch(){
+            player.setPlaylist(songs.filter(song => song.name.startsWith(this.searchInput)))
+        },
+        
+        sortByName(){
+            this.isSortedByName = true
+            {this.isSortedByDur?(this.isSortedByDur=false, this.clicks=0):""}
+            this.clicks ++
+            {this.clicks==2?this.isReversed = true:this.isReversed=false}
+            player.playlist.sort((a,b) => {
 			    var textA = a.name.toUpperCase();
                 var textB = b.name.toUpperCase();
-                if(this.click==1){
+                if(this.clicks==1){
                     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-                }else if(this.click==2){
+                }else if(this.clicks==2){
                     return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
                 }else{
-                    this.click = 0
-                    this.sortByName = false
+                    this.clicks = 0
+                    this.isSortedByName = false
+                    player.setPlaylist(songs)
+                }
+            
+		})
+        },
+        sortByDuration(){
+            this.isSortedByDur = true
+            {this.isSortedByName?(this.isSortedByName=false, this.clicks=0):""}
+            this.clicks ++
+            {this.clicks==2?this.isReversed = true:this.isReversed=false}
+            player.playlist.sort((a,b) => {
+			    var timeA = a.duration_ms;
+                var timeB = b.duration_ms;
+                if(this.clicks==1){
+                    return (timeA < timeB) ? -1 : (timeA > timeB) ? 1 : 0;
+                }else if(this.clicks==2){
+                    return (timeA > timeB) ? -1 : (timeA < timeB) ? 1 : 0;
+                }else{
+                    this.clicks = 0
+                    this.isSortedByDur = false
+                    player.setPlaylist(songs)
                 }
             
 		})

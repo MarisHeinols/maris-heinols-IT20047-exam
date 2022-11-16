@@ -5,6 +5,7 @@ import { auth } from '../stores/auth'
 import Login from '@/views/Login.vue'
 import Songs from '@/views/Songs.vue'
 import Albums from '@/views/Albums.vue'
+import About from '@/views/About.vue'
 
 // Definējam routes datu masīvu
 // Katrs objekts iekš šī datu masīva kalpo kā rūtera adrese
@@ -26,6 +27,10 @@ const routes = [
     {
         path: '/albums',
         component: Albums,
+    },
+    {
+        path: '/about',
+        component: About,
     }
 ]
 
@@ -38,9 +43,9 @@ const router = createRouter({
 // arguments to glabā adresi uz kurieni gribam iet
 // arguments from glabā adresi no kurienes mēs nākam
 router.beforeEach((to, from) => {
-    if(auth.is_authenticated == false && to.path != '/login'){
+    if(localStorage.is_authenticated == false && to.path != '/login'){
         return '/login'
-    }else if(auth.is_authenticated == true && to.path == '/login'){
+    }else if(localStorage.is_authenticated == true && to.path == '/login'){
         return from ? from.path : '/login'
     }
 })

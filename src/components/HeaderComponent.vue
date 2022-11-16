@@ -7,7 +7,7 @@
         <div class="wrapper-profile">
             <div class="section-user">
                 <span class="avatar"></span>
-                <h3 id="txt-full-name">{{name}} {{surname}}</h3>
+                <h3 id="txt-full-name">{{auth.user.name}} {{auth.user.surname}}</h3>
             </div>
             <button id="btn-logout" @click="logout()">LOGOUT</button>
         </div>
@@ -20,11 +20,7 @@ export default {
     name:"Header",
     data(){
         return{
-            user : {
-                name:auth.user.name,
-                surname:auth.user.surname,
-            },
-            loginStatus : auth.is_authenticated,
+            auth,
         };
     },
     methods:{
